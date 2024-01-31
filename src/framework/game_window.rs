@@ -1,10 +1,8 @@
 use std::time::Duration;
-use sdl2::event::Event;
-use sdl2::keyboard::Keycode;
 use sdl2::render::WindowCanvas;
 use sdl2::Sdl;
 use crate::framework::constants::TILE_SIZE;
-use crate::framework::game_state::GameState;
+use crate::framework::game_state::{GameState, TickContext};
 
 pub struct GameWindow {
     tile_w: u32,
@@ -41,22 +39,16 @@ impl GameWindow {
         })
     }
 
-    pub fn main_loop(&mut self, gs: &mut dyn GameState) {
+    pub(crate) fn main_loop(&mut self, gs: &mut dyn GameState) {
         let mut event_pump = self.sdl_context.event_pump().unwrap();
         'running: loop {
-            for event in event_pump.poll_iter() {
-                match event {
-                    Event::Quit { .. }
-                    | Event::KeyDown {
-                        keycode: Some(Keycode::Escape),
-                        ..
-                    } => break 'running,
-                    // skip mouse motion intentionally because of the verbose it might cause.
-                    Event::MouseMotion { .. } => {}
-                    e => {
-                        println!("{:?}", e);
-                    }
-                }
+            let event_opt = event_pump.poll_event();
+            let mut tick_ctx = TickContext {
+                event: &event_opt,
+                canvas: &mut self.canvas,
+            };
+            if let Some(-1) = gs.next_tick(&mut tick_ctx) {
+                break 'running;
             }
             self.canvas.present();
             ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 30));
