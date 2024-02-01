@@ -1,21 +1,24 @@
 use std::time::Duration;
 use sdl2::event::{Event, WindowEvent};
-use sdl2::render::WindowCanvas;
+use sdl2::render::{TextureCreator, WindowCanvas};
 use sdl2::Sdl;
+use sdl2::ttf::Font;
+use sdl2::video::WindowContext;
 use crate::framework::game_state::{GameState, TickContext};
 
-pub struct GameWindow {
+pub struct GameWindow<'a> {
     tile_w: u32,
     tile_h: u32,
     tile_size_w: u32,
     tile_size_h: u32,
-    sdl_context: Sdl,
+    sdl_context: &'a Sdl,
     canvas: WindowCanvas,
+    texture_creator: TextureCreator<WindowContext>,
+    font: &'a Font<'a, 'a>,
 }
 
-impl GameWindow {
-    pub fn new(tile_w: u32, tile_h: u32) -> Result<GameWindow, String> {
-        let sdl_context = sdl2::init()?;
+impl GameWindow<'_> {
+    pub fn new<'a>(tile_w: u32, tile_h: u32, sdl_context: &'a Sdl, font: &'a Font<'a, 'a>) -> Result<GameWindow<'a>, String> {
         let video_subsystem = sdl_context.video()?;
         let pix_w = 800;
         let pix_h = 600;
@@ -36,6 +39,8 @@ impl GameWindow {
             .build()
             .map_err(|e| e.to_string())?;
 
+        let texture_creator = canvas.texture_creator();
+
         Ok(GameWindow {
             tile_w,
             tile_h,
@@ -43,6 +48,8 @@ impl GameWindow {
             tile_size_h,
             sdl_context,
             canvas,
+            texture_creator,
+            font,
         })
     }
 
@@ -62,6 +69,8 @@ impl GameWindow {
             let mut tick_ctx = TickContext {
                 event: &event_opt,
                 canvas: &mut self.canvas,
+                font: &self.font,
+                texture_creator: &self.texture_creator,
                 tile_size_w,
                 tile_size_h,
             };
@@ -69,8 +78,7 @@ impl GameWindow {
                 break 'running;
             }
             self.canvas.present();
-            ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 30));
-            // The rest of the game loop goes here...
+            std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 30));
         }
     }
 

@@ -35,6 +35,7 @@ impl GameState for MyGameState {
         // draw.
         ctx.clear(Color::RGB(255, 255, 255));
         ctx.draw(self.x, self.y, "");
+        ctx.draw_text(self.x, self.y, "hello, world.");
         Some(0)
     }
 }
@@ -50,7 +51,15 @@ fn calc_move_delta(key: &Keycode) -> (i32, i32) {
 }
 
 fn main() -> Result<(), String> {
-    let mut window = GameWindow::new(80, 50)?;
+    // init SDL
+    let sdl_context = sdl2::init()?;
+    // init SDL TTF
+    let ttf_context = sdl2::ttf::init().map_err(|e| e.to_string())?;
+    let font_path = "/Users/w4ngzhen/projects/fonts/HackNerdFont-Regular.ttf";
+    let font = ttf_context.load_font(font_path, 14)?;
+    // todo init SDL Mix
+    // build GameWindow
+    let mut window = GameWindow::new(80, 50, &sdl_context, &font)?;
     let mut gs = MyGameState { x: 0, y: 0 };
     window.main_loop(&mut gs);
     Ok(())
