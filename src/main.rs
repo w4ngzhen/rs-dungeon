@@ -1,3 +1,4 @@
+use std::env;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
@@ -55,7 +56,7 @@ fn main() -> Result<(), String> {
     let sdl_context = sdl2::init()?;
     // init SDL TTF
     let ttf_context = sdl2::ttf::init().map_err(|e| e.to_string())?;
-    let font_path = "/Users/w4ngzhen/projects/fonts/HackNerdFont-Regular.ttf";
+    let font_path = env::var("RS_GAME_FONT_PATH").map_err(|e| format!("{}: {}", e.to_string(), "RS_GAME_FONT_PATH"))?;
     let font = ttf_context.load_font(font_path, 14)?;
     // todo init SDL Mix
     // build GameWindow
