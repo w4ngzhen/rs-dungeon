@@ -1,7 +1,8 @@
 use std::cmp::{max, min};
-use sdl2::event::Event;
-use sdl2::keyboard::Keycode;
-use sdl2::pixels::Color;
+use ggez::{Context, GameResult, graphics};
+use ggez::event::EventHandler;
+use ggez::graphics::Color;
+use ggez::input::keyboard::KeyCode;
 use specs::{Join, RunNow, World, WorldExt};
 use crate::components::player::Player;
 use crate::components::position::Position;
@@ -10,7 +11,8 @@ use crate::components::viewshed::Viewshed;
 use crate::constants::tile::TileType;
 use crate::constants::{TILE_HEIGHT, TILE_WIDTH};
 use crate::draw::draw_map::draw_map;
-use crate::game_tick_ctx::GameTickCtx;
+use crate::draw::draw_renderable::draw_renderable;
+use crate::game_context::GameContext;
 use crate::map::Map;
 use crate::systems::visibility::VisibilitySystem;
 use crate::utils::xy_idx;
@@ -25,43 +27,53 @@ impl GameState {
         vis.run_now(&self.ecs);
         self.ecs.maintain();
     }
-    pub fn next_tick(&mut self, ctx: &mut GameTickCtx) -> Option<i32> {
-        if let Some(event) = ctx.event {
-            // handle input.
-            match event {
-                Event::Quit { .. } => {
-                    return Some(-1);
-                }
-                Event::KeyDown { keycode: Some(key), .. } => {
-                    player_input(self, key);
-                }
-                _ => {
-                    // nothing now
-                }
-            }
+}
+
+impl EventHandler for GameState {
+    fn update(&mut self, ctx: &mut Context) -> GameResult {
+        if ctx.keyboard.is_key_pressed(KeyCode::Up) {
+            player_input(self, &KeyCode::Up);
         }
-        // run system.
+        if ctx.keyboard.is_key_pressed(KeyCode::Down) {
+            player_input(self, &KeyCode::Down);
+        }
+        if ctx.keyboard.is_key_pressed(KeyCode::Right) {
+            player_input(self, &KeyCode::Right);
+        }
+        if ctx.keyboard.is_key_pressed(KeyCode::Left) {
+            player_input(self, &KeyCode::Left);
+        }
         self.run_systems();
-        ctx.clear(Color::RGB(255, 255, 255));
+        Ok(())
+    }
+
+    fn draw(&mut self, ctx: &mut Context) -> GameResult {
+        let mut canvas = graphics::Canvas::from_frame(ctx, Color::WHITE);
+        // Draw code here...
         // draw.
-        draw_map(&self.ecs, ctx);
+        let mut game_ctx = GameContext {
+            canvas: &mut canvas,
+            tile_size_w: 8,
+            tile_size_h: 8,
+        };
+        draw_map(&self.ecs, &mut game_ctx);
         // draw all renderable things.
         let position_store = self.ecs.read_storage::<Position>();
         let renderable_store = self.ecs.read_storage::<Renderable>();
-        for (pos, render) in (&position_store, &renderable_store).join() {
-            ctx.draw_text(pos.x, pos.y, render.c.to_string().as_str());
+        for (pos, renderable) in (&position_store, &renderable_store).join() {
+            draw_renderable(pos, renderable, &mut game_ctx);
         }
-        Some(0)
+        canvas.finish(ctx)
     }
 }
 
-fn player_input(gs: &mut GameState, keycode: &Keycode) {
+fn player_input(gs: &mut GameState, keycode: &KeyCode) {
     // Player movement
     match keycode {
-        Keycode::Left => try_move_player(-1, 0, &mut gs.ecs),
-        Keycode::Right => try_move_player(1, 0, &mut gs.ecs),
-        Keycode::Up => try_move_player(0, -1, &mut gs.ecs),
-        Keycode::Down => try_move_player(0, 1, &mut gs.ecs),
+        KeyCode::Left => try_move_player(-1, 0, &mut gs.ecs),
+        KeyCode::Right => try_move_player(1, 0, &mut gs.ecs),
+        KeyCode::Up => try_move_player(0, -1, &mut gs.ecs),
+        KeyCode::Down => try_move_player(0, 1, &mut gs.ecs),
         _ => {}
     }
 }

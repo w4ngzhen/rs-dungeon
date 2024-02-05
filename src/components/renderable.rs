@@ -1,4 +1,4 @@
-use sdl2::pixels::Color;
+use ggez::graphics::Color;
 use specs::{Component, VecStorage};
 
 #[derive(Component)]
