@@ -1,4 +1,4 @@
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub struct TilePos {
     pub tile_x: u32,
     pub tile_y: u32,

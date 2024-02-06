@@ -46,7 +46,7 @@ fn main() -> Result<(), String> {
         })
         .build();
     let cb = ggez::ContextBuilder::new("super_simple", "ggez")
-        .window_mode(WindowMode::default());
+        .window_mode(WindowMode::default().dimensions(1200_f32, 800_f32).resizable(true));
     let (ctx, event_loop) = cb.build().map_err(|e| e.to_string())?;
     event::run(ctx, event_loop, gs);
 }

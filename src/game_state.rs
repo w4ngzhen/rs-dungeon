@@ -27,6 +27,11 @@ impl GameState {
         vis.run_now(&self.ecs);
         self.ecs.maintain();
     }
+
+    fn calc_tile_size(&self, canvas_size: (u32, u32)) -> (f32, f32) {
+        let (w, h) = canvas_size;
+        (w as f32 / TILE_WIDTH as f32, h as f32 / TILE_HEIGHT as f32)
+    }
 }
 
 impl EventHandler for GameState {
@@ -49,12 +54,15 @@ impl EventHandler for GameState {
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult {
         let mut canvas = graphics::Canvas::from_frame(ctx, Color::WHITE);
+        let physical_size = ctx.gfx.window().inner_size();
+        let (tile_size_w, tile_size_h) = self.calc_tile_size((physical_size.width, physical_size.height));
+        println!("tile_size {}, {}", tile_size_w, tile_size_h);
         // Draw code here...
         // draw.
         let mut game_ctx = GameContext {
             canvas: &mut canvas,
-            tile_size_w: 8,
-            tile_size_h: 8,
+            tile_size_w,
+            tile_size_h,
         };
         draw_map(&self.ecs, &mut game_ctx);
         // draw all renderable things.
