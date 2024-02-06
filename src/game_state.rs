@@ -36,16 +36,16 @@ impl GameState {
 
 impl EventHandler for GameState {
     fn update(&mut self, ctx: &mut Context) -> GameResult {
-        if ctx.keyboard.is_key_pressed(KeyCode::Up) {
+        if ctx.keyboard.is_key_just_pressed(KeyCode::Up) {
             player_input(self, &KeyCode::Up);
         }
-        if ctx.keyboard.is_key_pressed(KeyCode::Down) {
+        if ctx.keyboard.is_key_just_pressed(KeyCode::Down) {
             player_input(self, &KeyCode::Down);
         }
-        if ctx.keyboard.is_key_pressed(KeyCode::Right) {
+        if ctx.keyboard.is_key_just_pressed(KeyCode::Right) {
             player_input(self, &KeyCode::Right);
         }
-        if ctx.keyboard.is_key_pressed(KeyCode::Left) {
+        if ctx.keyboard.is_key_just_pressed(KeyCode::Left) {
             player_input(self, &KeyCode::Left);
         }
         self.run_systems();
@@ -56,7 +56,6 @@ impl EventHandler for GameState {
         let mut canvas = graphics::Canvas::from_frame(ctx, Color::WHITE);
         let physical_size = ctx.gfx.window().inner_size();
         let (tile_size_w, tile_size_h) = self.calc_tile_size((physical_size.width, physical_size.height));
-        println!("tile_size {}, {}", tile_size_w, tile_size_h);
         // Draw code here...
         // draw.
         let mut game_ctx = GameContext {
