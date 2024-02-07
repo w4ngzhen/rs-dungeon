@@ -20,13 +20,14 @@ pub fn draw_map(ecs: &World, ctx: &mut GameContext) {
         } else {
             Color::from_rgb(50, 50, 50)
         };
-        match tile_type {
+        let (char, _tile_code) = match tile_type {
             TileType::Floor => {
-                ctx.draw_tile_block(&tile_pos, fg_color);
+                (".", 0)
             }
             TileType::Wall => {
-                ctx.draw_tile_block(&tile_pos, fg_color);
+                ("#", 1)
             }
-        }
+        };
+        ctx.draw_tile_text(&tile_pos, fg_color, None, char);
     }
 }

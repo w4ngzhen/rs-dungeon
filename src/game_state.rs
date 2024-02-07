@@ -1,8 +1,8 @@
 use std::cmp::{max, min};
-use ggez::{Context, GameResult, graphics};
+use ggez::{Context, GameError, GameResult, graphics};
 use ggez::event::EventHandler;
 use ggez::graphics::Color;
-use ggez::input::keyboard::KeyCode;
+use ggez::input::keyboard::{KeyCode, KeyInput};
 use specs::{Join, RunNow, World, WorldExt};
 use crate::components::player::Player;
 use crate::components::position::Position;
@@ -35,25 +35,14 @@ impl GameState {
 }
 
 impl EventHandler for GameState {
-    fn update(&mut self, ctx: &mut Context) -> GameResult {
-        if ctx.keyboard.is_key_just_pressed(KeyCode::Up) {
-            player_input(self, &KeyCode::Up);
-        }
-        if ctx.keyboard.is_key_just_pressed(KeyCode::Down) {
-            player_input(self, &KeyCode::Down);
-        }
-        if ctx.keyboard.is_key_just_pressed(KeyCode::Right) {
-            player_input(self, &KeyCode::Right);
-        }
-        if ctx.keyboard.is_key_just_pressed(KeyCode::Left) {
-            player_input(self, &KeyCode::Left);
-        }
+    fn update(&mut self, _ctx: &mut Context) -> GameResult {
         self.run_systems();
         Ok(())
     }
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult {
-        let mut canvas = graphics::Canvas::from_frame(ctx, Color::WHITE);
+        println!("FPS: {:?}", ctx.time.fps());
+        let mut canvas = graphics::Canvas::from_frame(ctx, Color::BLACK);
         let physical_size = ctx.gfx.window().inner_size();
         let (tile_size_w, tile_size_h) = self.calc_tile_size((physical_size.width, physical_size.height));
         // Draw code here...
@@ -71,6 +60,13 @@ impl EventHandler for GameState {
             draw_renderable(pos, renderable, &mut game_ctx);
         }
         canvas.finish(ctx)
+    }
+
+    fn key_down_event(&mut self, _ctx: &mut Context, input: KeyInput, _repeated: bool) -> Result<(), GameError> {
+        if let Some(ref keycode) = input.keycode {
+            player_input(self, keycode);
+        }
+        Ok(())
     }
 }
 

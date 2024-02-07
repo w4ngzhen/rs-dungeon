@@ -3,8 +3,8 @@ name = "rs-dungeon"
 version = "0.1.0"
 edition = "2021"
 # just dependencies opt-level = 1
-[profile.dev.package."*"]
-opt-level = 1
+#[profile.dev.package."*"]
+#opt-level = 1
 
 [dependencies]
 rltk = { version = "0.8.0" }
