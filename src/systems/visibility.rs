@@ -1,4 +1,6 @@
-use rltk::{field_of_view, Point};
+use std::cmp::{max, min};
+use doryen_fov::{FovAlgorithm, FovRecursiveShadowCasting, MapData};
+use ggez::mint::Point2;
 use specs::{Entities, Join, ReadStorage, System, WriteExpect, WriteStorage};
 use crate::components::player::Player;
 use crate::components::position::Position;
@@ -26,8 +28,11 @@ impl<'a> System<'a> for VisibilitySystem {
             viewshed.invalid = true;
             viewshed.visible_tiles.clear();
             // use utils to calculate field of view.
-            viewshed.visible_tiles = field_of_view(Point::new(pos.x, pos.y), viewshed.range, &*map);
-            viewshed.visible_tiles.retain(|p| p.x >= 0 && p.x < map.width && p.y >= 0 && p.y < map.height);
+            viewshed.visible_tiles = calc_visibility(
+                Point2::from([pos.x, pos.y]),
+                viewshed.range,
+                &map,
+            );
             // but only Player can reveal the map.
             let opt_p: Option<&Player> = player_store.get(ent);
             if let Some(_p) = opt_p {
@@ -44,4 +49,39 @@ impl<'a> System<'a> for VisibilitySystem {
             }
         }
     }
+}
+
+fn calc_visibility(role_pos: Point2<u32>, range: u32, map: &Map) -> Vec<Point2<u32>> {
+    let map_w = map.width;
+    let map_h = map.height;
+    let x_range = (max(0, role_pos.x as i32 - range as i32) as u32, min(role_pos.x + range, map_w));
+    let y_range = (max(0, role_pos.y as i32 - range as i32) as u32, min(role_pos.y + range, map_h));
+    let view_rect_w = x_range.1 - x_range.0;
+    let view_rect_h = y_range.1 - y_range.0;
+    let mut view_map_data = MapData::new(view_rect_w as usize, view_rect_h as usize);
+    for origin_x in x_range.0..x_range.1 {
+        for origin_y in y_range.0..y_range.1 {
+            let origin_idx = xy_idx(origin_x, origin_y);
+            if map.is_opaque(origin_idx) {
+                let offset_x = origin_x - x_range.0;
+                let offset_y = origin_y - y_range.0;
+                view_map_data.set_transparent(offset_x as usize, offset_y as usize, false);
+            }
+        }
+    }
+    let mut fov = FovRecursiveShadowCasting::new();
+    let role_offset_x = role_pos.x - x_range.0;
+    let role_offset_y = role_pos.y - y_range.0;
+    fov.compute_fov(&mut view_map_data, role_offset_x as usize, role_offset_y as usize, range as usize, false);
+    let mut visible_points: Vec<Point2<u32>> = Vec::new();
+    for origin_x in x_range.0..x_range.1 {
+        for origin_y in y_range.0..y_range.1 {
+            let offset_x = (origin_x - x_range.0) as usize;
+            let offset_y = (origin_y - y_range.0) as usize;
+            if view_map_data.is_in_fov(offset_x, offset_y) {
+                visible_points.push(Point2::from([origin_x, origin_y]));
+            }
+        }
+    }
+    visible_points
 }

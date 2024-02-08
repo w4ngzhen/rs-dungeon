@@ -10,3 +10,4 @@ edition = "2021"
 rltk = { version = "0.8.0" }
 specs = { version = "0.20.0", features = ["specs-derive"] }
 ggez = { version = "0.9.3" }
+doryen-fov = { version = "0.1.1" }

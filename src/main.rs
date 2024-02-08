@@ -7,6 +7,7 @@ mod components;
 mod systems;
 mod game_context;
 mod tile_pos;
+mod tile_rect;
 
 use ggez::conf::WindowMode;
 use ggez::event;
@@ -18,6 +19,7 @@ use crate::components::renderable::Renderable;
 use crate::components::viewshed::Viewshed;
 use crate::game_state::GameState;
 use crate::map::Map;
+use crate::utils::to_tuple;
 
 fn main() -> Result<(), String> {
     let mut gs = GameState {
@@ -26,7 +28,7 @@ fn main() -> Result<(), String> {
     // insert resource
     let map = Map::new_map();
     let first_room = &map.rooms[0];
-    let (player_x, player_y) = first_room.center().to_tuple();
+    let (player_x, player_y) = to_tuple(first_room.center());
     gs.ecs.insert(map);
     // register
     gs.ecs.register::<Position>();

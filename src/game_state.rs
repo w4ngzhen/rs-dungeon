@@ -1,4 +1,3 @@
-use std::cmp::{max, min};
 use ggez::{Context, GameError, GameResult, graphics};
 use ggez::event::EventHandler;
 use ggez::graphics::Color;
@@ -88,10 +87,18 @@ fn try_move_player(delta_x: i32, delta_y: i32, ecs: &mut World) {
     let map = ecs.fetch::<Map>();
 
     for (_player, pos, viewshed) in (&mut player_store, &mut position_store, &mut viewshed_store).join() {
-        let destination_idx = xy_idx(pos.x + delta_x, pos.y + delta_y);
+        let next_x: i32 = pos.x as i32 + delta_x;
+        let next_y: i32 = pos.y as i32 + delta_y;
+        if next_x < 0 || next_x >= TILE_WIDTH as i32 {
+            continue;
+        }
+        if next_y < 0 || next_y >= TILE_HEIGHT as i32 {
+            continue;
+        }
+        let destination_idx = xy_idx(next_x as u32, next_y as u32);
         if map.tiles[destination_idx] != TileType::Wall {
-            pos.x = min(TILE_WIDTH as i32 - 1, max(0, pos.x + delta_x));
-            pos.y = min(TILE_HEIGHT as i32 - 1, max(0, pos.y + delta_y));
+            pos.x = next_x as u32;
+            pos.y = next_y as u32;
             // moved. we should invalid region. re-draw.
             viewshed.invalid = true;
         }
