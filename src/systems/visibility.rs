@@ -72,7 +72,7 @@ fn calc_visibility(role_pos: Point2<u32>, range: u32, map: &Map) -> Vec<Point2<u
     let mut fov = FovRecursiveShadowCasting::new();
     let role_offset_x = role_pos.x - x_range.0;
     let role_offset_y = role_pos.y - y_range.0;
-    fov.compute_fov(&mut view_map_data, role_offset_x as usize, role_offset_y as usize, range as usize, false);
+    fov.compute_fov(&mut view_map_data, role_offset_x as usize, role_offset_y as usize, range as usize, true);
     let mut visible_points: Vec<Point2<u32>> = Vec::new();
     for origin_x in x_range.0..x_range.1 {
         for origin_y in y_range.0..y_range.1 {

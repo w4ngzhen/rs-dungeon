@@ -14,12 +14,15 @@ pub fn draw_map(ecs: &World, ctx: &mut GameContext) {
         let tile_pos = TilePos::new(x, y);
 
         let fg_color = if map.revealed_tiles[map_idx] {
-            Color::from_rgb(0, 255, 0)
+            Some(Color::from_rgb(0, 255, 0))
         } else if map.visited_tiles[map_idx] {
-            Color::from_rgb(120, 120, 120)
+            Some(Color::from_rgb(120, 120, 120))
         } else {
-            Color::from_rgb(50, 50, 50)
+            None
         };
+        if fg_color == None {
+            continue
+        }
         let (char, _tile_code) = match tile_type {
             TileType::Floor => {
                 (".", 0)
@@ -28,6 +31,6 @@ pub fn draw_map(ecs: &World, ctx: &mut GameContext) {
                 ("#", 1)
             }
         };
-        ctx.draw_tile_text(&tile_pos, fg_color, None, char);
+        ctx.draw_tile_text(&tile_pos, fg_color.unwrap() , None, char);
     }
 }
