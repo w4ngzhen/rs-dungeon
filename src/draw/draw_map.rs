@@ -9,8 +9,8 @@ use crate::tile_pos::TilePos;
 pub fn draw_map(ecs: &World, ctx: &mut GameContext) {
     let map = ecs.fetch::<Map>();
     for (map_idx, tile_type) in map.tiles.iter().enumerate() {
-        let x = map_idx as u32 % TILE_WIDTH;
-        let y = map_idx as u32 / TILE_WIDTH;
+        let x = map_idx as u64 % TILE_WIDTH;
+        let y = map_idx as u64 / TILE_WIDTH;
         let tile_pos = TilePos::new(x, y);
 
         let fg_color = if map.revealed_tiles[map_idx] {

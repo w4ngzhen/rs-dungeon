@@ -1,7 +1,7 @@
 use std::cmp::{max, min};
-use rltk::RandomNumberGenerator;
 use crate::constants::tile::TileType;
 use crate::constants::{TILE_HEIGHT, TILE_WIDTH};
+use crate::rand_gen::RandGen;
 use crate::tile_rect::TileRect;
 use crate::utils::{to_tuple, xy_idx};
 
@@ -10,31 +10,31 @@ pub struct Map {
     pub revealed_tiles: Vec<bool>,
     pub visited_tiles: Vec<bool>,
     pub rooms: Vec<TileRect>,
-    pub width: u32,
-    pub height: u32,
+    pub width: u64,
+    pub height: u64,
 }
 
 impl Map {
     pub fn new_map() -> Self {
-        const MAP_SIZE: u32 = TILE_WIDTH * TILE_HEIGHT;
+        const MAP_SIZE: u64 = TILE_WIDTH * TILE_HEIGHT;
 
         let mut map_tiles = vec![TileType::Wall; MAP_SIZE as usize];
 
         let mut rooms: Vec<TileRect> = Vec::new();
         const MAX_ROOMS: i32 = 30;
-        const MIN_SIZE: u32 = 6;
-        const MAX_SIZE: u32 = 10;
+        const MIN_SIZE: u64 = 6;
+        const MAX_SIZE: u64 = 10;
 
-        let mut rng = RandomNumberGenerator::seeded(123);
+        let mut rng = RandGen::new(Some(123));
 
         for _ in 0..MAX_ROOMS {
             let w = rng.range(MIN_SIZE, MAX_SIZE);
             let h = rng.range(MIN_SIZE, MAX_SIZE);
-            let x = rng.roll_dice(1, (TILE_WIDTH - w - 1) as i32) - 1;
-            let y = rng.roll_dice(1, (TILE_HEIGHT - h - 1) as i32) - 1;
+            let x = rng.roll_dice(1, TILE_WIDTH - w - 1) - 1;
+            let y = rng.roll_dice(1, TILE_HEIGHT - h - 1) - 1;
             let new_room = TileRect {
-                x: x as u32,
-                y: y as u32,
+                x,
+                y,
                 w,
                 h,
             };
@@ -89,7 +89,7 @@ fn apply_room_to_map(room: &TileRect, map: &mut [TileType]) {
     }
 }
 
-fn apply_horizontal_tunnel(map: &mut [TileType], x1: u32, x2: u32, y: u32) {
+fn apply_horizontal_tunnel(map: &mut [TileType], x1: u64, x2: u64, y: u64) {
     for x in min(x1, x2)..=max(x1, x2) {
         let idx = xy_idx(x, y);
         if idx > 0 && idx < (TILE_WIDTH * TILE_HEIGHT) as usize {
@@ -98,7 +98,7 @@ fn apply_horizontal_tunnel(map: &mut [TileType], x1: u32, x2: u32, y: u32) {
     }
 }
 
-fn apply_vertical_tunnel(map: &mut [TileType], y1: u32, y2: u32, x: u32) {
+fn apply_vertical_tunnel(map: &mut [TileType], y1: u64, y2: u64, x: u64) {
     for y in min(y1, y2)..=max(y1, y2) {
         let idx = xy_idx(x, y);
         if idx > 0 && idx < (TILE_WIDTH * TILE_HEIGHT) as usize {

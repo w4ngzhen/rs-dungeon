@@ -8,6 +8,7 @@ mod systems;
 mod game_context;
 mod tile_pos;
 mod tile_rect;
+mod rand_gen;
 
 use ggez::conf::WindowMode;
 use ggez::event;

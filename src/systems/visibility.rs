@@ -51,11 +51,11 @@ impl<'a> System<'a> for VisibilitySystem {
     }
 }
 
-fn calc_visibility(role_pos: Point2<u32>, range: u32, map: &Map) -> Vec<Point2<u32>> {
+fn calc_visibility(role_pos: Point2<u64>, range: u64, map: &Map) -> Vec<Point2<u64>> {
     let map_w = map.width;
     let map_h = map.height;
-    let x_range = (max(0, role_pos.x as i32 - range as i32) as u32, min(role_pos.x + range, map_w));
-    let y_range = (max(0, role_pos.y as i32 - range as i32) as u32, min(role_pos.y + range, map_h));
+    let x_range = (max(0, role_pos.x as i32 - range as i32) as u64, min(role_pos.x + range, map_w));
+    let y_range = (max(0, role_pos.y as i32 - range as i32) as u64, min(role_pos.y + range, map_h));
     let view_rect_w = x_range.1 - x_range.0;
     let view_rect_h = y_range.1 - y_range.0;
     let mut view_map_data = MapData::new(view_rect_w as usize, view_rect_h as usize);
@@ -73,7 +73,7 @@ fn calc_visibility(role_pos: Point2<u32>, range: u32, map: &Map) -> Vec<Point2<u
     let role_offset_x = role_pos.x - x_range.0;
     let role_offset_y = role_pos.y - y_range.0;
     fov.compute_fov(&mut view_map_data, role_offset_x as usize, role_offset_y as usize, range as usize, true);
-    let mut visible_points: Vec<Point2<u32>> = Vec::new();
+    let mut visible_points: Vec<Point2<u64>> = Vec::new();
     for origin_x in x_range.0..x_range.1 {
         for origin_y in y_range.0..y_range.1 {
             let offset_x = (origin_x - x_range.0) as usize;

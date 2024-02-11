@@ -27,7 +27,7 @@ impl GameState {
         self.ecs.maintain();
     }
 
-    fn calc_tile_size(&self, canvas_size: (u32, u32)) -> (f32, f32) {
+    fn calc_tile_size(&self, canvas_size: (u64, u64)) -> (f32, f32) {
         let (w, h) = canvas_size;
         (w as f32 / TILE_WIDTH as f32, h as f32 / TILE_HEIGHT as f32)
     }
@@ -43,7 +43,7 @@ impl EventHandler for GameState {
         println!("FPS: {:?}", ctx.time.fps());
         let mut canvas = graphics::Canvas::from_frame(ctx, Color::BLACK);
         let physical_size = ctx.gfx.window().inner_size();
-        let (tile_size_w, tile_size_h) = self.calc_tile_size((physical_size.width, physical_size.height));
+        let (tile_size_w, tile_size_h) = self.calc_tile_size((physical_size.width as u64, physical_size.height as u64));
         // Draw code here...
         // draw.
         let mut game_ctx = GameContext {
@@ -95,10 +95,10 @@ fn try_move_player(delta_x: i32, delta_y: i32, ecs: &mut World) {
         if next_y < 0 || next_y >= TILE_HEIGHT as i32 {
             continue;
         }
-        let destination_idx = xy_idx(next_x as u32, next_y as u32);
+        let destination_idx = xy_idx(next_x as u64, next_y as u64);
         if map.tiles[destination_idx] != TileType::Wall {
-            pos.x = next_x as u32;
-            pos.y = next_y as u32;
+            pos.x = next_x as u64;
+            pos.y = next_y as u64;
             // moved. we should invalid region. re-draw.
             viewshed.invalid = true;
         }

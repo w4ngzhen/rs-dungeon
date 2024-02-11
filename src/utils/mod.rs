@@ -1,7 +1,7 @@
 use ggez::mint::Point2;
 use crate::constants::TILE_WIDTH;
 
-pub fn xy_idx(x: u32, y: u32) -> usize {
+pub fn xy_idx(x: u64, y: u64) -> usize {
     (y as usize * TILE_WIDTH as usize) + x as usize
 }
 
