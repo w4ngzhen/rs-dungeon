@@ -52,11 +52,16 @@ impl EventHandler for GameState {
             tile_size_h,
         };
         draw_map(&self.ecs, &mut game_ctx);
+        let world = &self.ecs;
+        let map = world.fetch::<Map>();
         // draw all renderable things.
         let position_store = self.ecs.read_storage::<Position>();
         let renderable_store = self.ecs.read_storage::<Renderable>();
         for (pos, renderable) in (&position_store, &renderable_store).join() {
-            draw_renderable(pos, renderable, &mut game_ctx);
+            let idx = xy_idx(pos.x, pos.y);
+            if map.revealed_tiles[idx] {
+                draw_renderable(pos, renderable, &mut game_ctx);
+            }
         }
         canvas.finish(ctx)
     }

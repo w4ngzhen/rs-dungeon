@@ -26,16 +26,15 @@ fn main() -> Result<(), String> {
     let mut gs = GameState {
         ecs: World::new()
     };
-    // insert resource
-    let map = Map::new_map();
-    let first_room = &map.rooms[0];
-    let (player_x, player_y) = to_tuple(first_room.center());
-    gs.ecs.insert(map);
     // register
     gs.ecs.register::<Position>();
     gs.ecs.register::<Renderable>();
     gs.ecs.register::<Player>();
     gs.ecs.register::<Viewshed>();
+    // insert resource
+    let map = Map::new_map();
+    let first_room = &map.rooms[0];
+    let (player_x, player_y) = to_tuple(first_room.center());
     // create entity
     gs.ecs
         .create_entity()
@@ -48,6 +47,20 @@ fn main() -> Result<(), String> {
             bg: Color::BLACK,
         })
         .build();
+    // create monster
+    for room in map.rooms.iter().skip(1) {
+        let (x, y) = to_tuple(room.center());
+        gs.ecs.create_entity()
+            .with(Position { x, y })
+            .with(Renderable {
+                c: 'g',
+                fg: Color::RED,
+                bg: Color::BLACK,
+            })
+            .with(Viewshed { visible_tiles: vec![], range: 8, invalid: true })
+            .build();
+    }
+    gs.ecs.insert(map);
     let cb = ggez::ContextBuilder::new("super_simple", "ggez")
         .window_mode(WindowMode::default().dimensions(1200_f32, 800_f32).resizable(true));
     let (ctx, event_loop) = cb.build().map_err(|e| e.to_string())?;
