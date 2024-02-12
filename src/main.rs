@@ -14,6 +14,7 @@ use ggez::conf::WindowMode;
 use ggez::event;
 use ggez::graphics::Color;
 use specs::{Builder, World, WorldExt};
+use crate::components::monster::Monster;
 use crate::components::player::Player;
 use crate::components::position::Position;
 use crate::components::renderable::Renderable;
@@ -31,6 +32,7 @@ fn main() -> Result<(), String> {
     gs.ecs.register::<Renderable>();
     gs.ecs.register::<Player>();
     gs.ecs.register::<Viewshed>();
+    gs.ecs.register::<Monster>();
     // insert resource
     let map = Map::new_map();
     let first_room = &map.rooms[0];
@@ -51,6 +53,7 @@ fn main() -> Result<(), String> {
     for room in map.rooms.iter().skip(1) {
         let (x, y) = to_tuple(room.center());
         gs.ecs.create_entity()
+            .with(Monster {})
             .with(Position { x, y })
             .with(Renderable {
                 c: 'g',
@@ -61,6 +64,7 @@ fn main() -> Result<(), String> {
             .build();
     }
     gs.ecs.insert(map);
+    // ggez
     let cb = ggez::ContextBuilder::new("super_simple", "ggez")
         .window_mode(WindowMode::default().dimensions(1200_f32, 800_f32).resizable(true));
     let (ctx, event_loop) = cb.build().map_err(|e| e.to_string())?;

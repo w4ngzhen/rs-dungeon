@@ -43,7 +43,6 @@ impl Map {
                 if new_room.intersect(other_room) { ok = false }
             }
             if ok {
-                println!("new room: {:?}", new_room);
                 apply_room_to_map(&new_room, &mut map_tiles);
 
                 if !rooms.is_empty() {
@@ -83,7 +82,6 @@ fn apply_room_to_map(room: &TileRect, map: &mut [TileType]) {
     let rb = room.right_bottom();
     for y in lt.y + 1..=rb.y {
         for x in lt.x + 1..=rb.x {
-            println!("floor: {}, {}", x, y);
             map[xy_idx(x, y)] = TileType::Floor;
         }
     }

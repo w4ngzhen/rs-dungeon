@@ -9,10 +9,12 @@ use crate::components::renderable::Renderable;
 use crate::components::viewshed::Viewshed;
 use crate::constants::tile::TileType;
 use crate::constants::{TILE_HEIGHT, TILE_WIDTH};
+use crate::draw::dev::draw_dev_info;
 use crate::draw::draw_map::draw_map;
 use crate::draw::draw_renderable::draw_renderable;
 use crate::game_context::GameContext;
 use crate::map::Map;
+use crate::systems::monster_ai::MonsterAiSystem;
 use crate::systems::visibility::VisibilitySystem;
 use crate::utils::xy_idx;
 
@@ -24,6 +26,8 @@ impl GameState {
     fn run_systems(&mut self) {
         let mut vis = VisibilitySystem {};
         vis.run_now(&self.ecs);
+        let mut mob = MonsterAiSystem {};
+        mob.run_now(&self.ecs);
         self.ecs.maintain();
     }
 
@@ -40,7 +44,6 @@ impl EventHandler for GameState {
     }
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult {
-        println!("FPS: {:?}", ctx.time.fps());
         let mut canvas = graphics::Canvas::from_frame(ctx, Color::BLACK);
         let physical_size = ctx.gfx.window().inner_size();
         let (tile_size_w, tile_size_h) = self.calc_tile_size((physical_size.width as u64, physical_size.height as u64));
@@ -63,6 +66,7 @@ impl EventHandler for GameState {
                 draw_renderable(pos, renderable, &mut game_ctx);
             }
         }
+        draw_dev_info(&mut canvas, ctx);
         canvas.finish(ctx)
     }
 
