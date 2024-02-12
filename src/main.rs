@@ -16,6 +16,7 @@ use ggez::event;
 use ggez::graphics::Color;
 use specs::{Builder, World, WorldExt};
 use crate::components::monster::Monster;
+use crate::components::name::Name;
 use crate::components::player::Player;
 use crate::components::position::Position;
 use crate::components::renderable::Renderable;
@@ -36,6 +37,7 @@ fn main() -> Result<(), String> {
     gs.ecs.register::<Player>();
     gs.ecs.register::<Viewshed>();
     gs.ecs.register::<Monster>();
+    gs.ecs.register::<Name>();
     // insert resource
     let map = Map::new_map();
     let first_room = &map.rooms[0];
@@ -44,6 +46,7 @@ fn main() -> Result<(), String> {
     gs.ecs
         .create_entity()
         .with(Player {})
+        .with(Name { name: String::from("Tom") })
         .with(Viewshed { visible_tiles: vec![], range: 8, invalid: true })
         .with(Position { x: player_x, y: player_y })
         .with(Renderable {
@@ -53,10 +56,12 @@ fn main() -> Result<(), String> {
         })
         .build();
     // create monster
+    let mut monster_id = 1;
     for room in map.rooms.iter().skip(1) {
         let (x, y) = to_tuple(room.center());
         gs.ecs.create_entity()
             .with(Monster {})
+            .with(Name { name: format!("M#{}", monster_id) })
             .with(Position { x, y })
             .with(Renderable {
                 c: 'g',
@@ -65,6 +70,7 @@ fn main() -> Result<(), String> {
             })
             .with(Viewshed { visible_tiles: vec![], range: 8, invalid: true })
             .build();
+        monster_id += 1;
     }
     gs.ecs.insert(map);
     // ggez
