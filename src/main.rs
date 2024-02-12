@@ -9,6 +9,7 @@ mod game_context;
 mod tile_pos;
 mod tile_rect;
 mod rand_gen;
+mod run_state;
 
 use ggez::conf::WindowMode;
 use ggez::event;
@@ -21,11 +22,13 @@ use crate::components::renderable::Renderable;
 use crate::components::viewshed::Viewshed;
 use crate::game_state::GameState;
 use crate::map::Map;
+use crate::run_state::RunState;
 use crate::utils::to_tuple;
 
 fn main() -> Result<(), String> {
     let mut gs = GameState {
-        ecs: World::new()
+        ecs: World::new(),
+        run_state: RunState::Running,
     };
     // register
     gs.ecs.register::<Position>();

@@ -14,12 +14,14 @@ use crate::draw::draw_map::draw_map;
 use crate::draw::draw_renderable::draw_renderable;
 use crate::game_context::GameContext;
 use crate::map::Map;
+use crate::run_state::RunState;
 use crate::systems::monster_ai::MonsterAiSystem;
 use crate::systems::visibility::VisibilitySystem;
 use crate::utils::xy_idx;
 
 pub struct GameState {
     pub ecs: World,
+    pub run_state: RunState,
 }
 
 impl GameState {
@@ -39,7 +41,10 @@ impl GameState {
 
 impl EventHandler for GameState {
     fn update(&mut self, _ctx: &mut Context) -> GameResult {
-        self.run_systems();
+        if self.run_state == RunState::Running {
+            self.run_systems();
+            self.run_state = RunState::Paused;
+        }
         Ok(())
     }
 
@@ -73,6 +78,7 @@ impl EventHandler for GameState {
     fn key_down_event(&mut self, _ctx: &mut Context, input: KeyInput, _repeated: bool) -> Result<(), GameError> {
         if let Some(ref keycode) = input.keycode {
             player_input(self, keycode);
+            self.run_state = RunState::Running;
         }
         Ok(())
     }
