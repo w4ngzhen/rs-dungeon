@@ -59,6 +59,7 @@ fn main() -> Result<(), String> {
     let mut monster_id = 1;
     for room in map.rooms.iter().skip(1) {
         let (x, y) = to_tuple(room.center());
+        // println!("monster created at ({}, {})", x, y);
         gs.ecs.create_entity()
             .with(Monster {})
             .with(Name { name: format!("M#{}", monster_id) })

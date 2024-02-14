@@ -75,6 +75,10 @@ impl Map {
     pub fn is_opaque(&self, idx: usize) -> bool {
         self.tiles[idx] == TileType::Wall
     }
+
+    pub fn is_block(&self, idx: usize) -> bool {
+        self.tiles[idx] == TileType::Wall
+    }
 }
 
 fn apply_room_to_map(room: &TileRect, map: &mut [TileType]) {
