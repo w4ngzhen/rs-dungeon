@@ -2,7 +2,7 @@ use ggez::glam::Vec2;
 use ggez::graphics;
 use ggez::graphics::{Canvas, Color, DrawParam, PxScale, Rect, Text, TextAlign, TextFragment, TextLayout};
 use ggez::mint::Point2;
-use crate::tile_pos::TilePos;
+use crate::components::position::Position;
 
 pub struct GameContext<'a> {
     pub canvas: &'a mut Canvas,
@@ -11,7 +11,7 @@ pub struct GameContext<'a> {
 }
 
 impl<'a> GameContext<'a> {
-    pub fn draw_tile_block(&mut self, tile_pos: &TilePos, color: Color) {
+    pub fn draw_tile_block(&mut self, tile_pos: &Position, color: Color) {
         let rect = self.tile_pix_rect(tile_pos);
         self.canvas.draw(&graphics::Quad,
                          DrawParam::new()
@@ -20,7 +20,7 @@ impl<'a> GameContext<'a> {
                              .color(color))
     }
 
-    pub fn draw_tile_text(&mut self, tile_pos: &TilePos, fg_color: Color, bg_color: Option<Color>, text: &str) {
+    pub fn draw_tile_text(&mut self, tile_pos: &Position, fg_color: Color, bg_color: Option<Color>, text: &str) {
         let rect = self.tile_pix_rect(tile_pos);
         // build Text data.
         let mut text_data = Text::new(TextFragment {
@@ -46,13 +46,13 @@ impl<'a> GameContext<'a> {
         );
     }
 
-    fn tile_pix_pos(&self, tile_pos: &TilePos) -> Point2<f32> {
-        let pix_x = tile_pos.tile_x as f32 * self.tile_size_w;
-        let pix_y = tile_pos.tile_y as f32 * self.tile_size_h;
+    fn tile_pix_pos(&self, tile_pos: &Position) -> Point2<f32> {
+        let pix_x = tile_pos.x as f32 * self.tile_size_w;
+        let pix_y = tile_pos.y as f32 * self.tile_size_h;
         Point2::from([pix_x, pix_y])
     }
 
-    fn tile_pix_rect(&self, tile_pos: &TilePos) -> Rect {
+    fn tile_pix_rect(&self, tile_pos: &Position) -> Rect {
         let pos = self.tile_pix_pos(tile_pos);
         Rect::new(pos.x, pos.y, self.tile_size_w, self.tile_size_h)
     }

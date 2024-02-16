@@ -6,7 +6,6 @@ mod game_state;
 mod components;
 mod systems;
 mod game_context;
-mod tile_pos;
 mod tile_rect;
 mod rand_gen;
 mod run_state;

@@ -1,17 +1,17 @@
 use ggez::graphics::Color;
 use specs::World;
+use crate::components::position::Position;
 use crate::constants::tile::TileType;
 use crate::constants::TILE_WIDTH;
 use crate::game_context::GameContext;
 use crate::map::Map;
-use crate::tile_pos::TilePos;
 
 pub fn draw_map(ecs: &World, ctx: &mut GameContext) {
     let map = ecs.fetch::<Map>();
     for (map_idx, tile_type) in map.tiles.iter().enumerate() {
         let x = map_idx as u64 % TILE_WIDTH;
         let y = map_idx as u64 / TILE_WIDTH;
-        let tile_pos = TilePos::new(x, y);
+        let tile_pos = Position::new(x, y);
 
         let fg_color = if map.revealed_tiles[map_idx] {
             Some(Color::from_rgb(0, 255, 0))
