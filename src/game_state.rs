@@ -15,6 +15,7 @@ use crate::draw::draw_renderable::draw_renderable;
 use crate::game_context::GameContext;
 use crate::map::Map;
 use crate::run_state::RunState;
+use crate::systems::map_index::MapIndexSystem;
 use crate::systems::monster_ai::MonsterAiSystem;
 use crate::systems::visibility::VisibilitySystem;
 use crate::utils::xy_idx;
@@ -30,6 +31,8 @@ impl GameState {
         vis.run_now(&self.ecs);
         let mut mob = MonsterAiSystem {};
         mob.run_now(&self.ecs);
+        let mut mi = MapIndexSystem {};
+        mi.run_now(&self.ecs);
         self.ecs.maintain();
     }
 
@@ -111,11 +114,12 @@ fn try_move_player(delta_x: i32, delta_y: i32, ecs: &mut World) {
             continue;
         }
         let destination_idx = xy_idx(next_x as u64, next_y as u64);
-        if map.tiles[destination_idx] != TileType::Wall {
+        if !map.blocked_tiles[destination_idx] {
             pos.x = next_x as u64;
             pos.y = next_y as u64;
             // moved. we should invalid region. re-draw.
             viewshed.invalid = true;
+            continue;
         }
     }
 }

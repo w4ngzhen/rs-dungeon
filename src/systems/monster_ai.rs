@@ -34,16 +34,24 @@ impl<'a> System<'a> for MonsterAiSystem {
             player_pos = Some(_player_pos.clone());
             break;
         }
+        if player_pos == None {
+            return;
+        }
+        let player_pos = &player_pos.unwrap();
         for (name, viewshed, ref mut monster_pos, _monster) in (&name_store, &viewshed_store, &mut pos_store, &monster_store).join() {
-            if let Some(ref player_pos) = player_pos {
-                if viewshed.visible_tiles.contains(&Point2::from([player_pos.x, player_pos.y])) {
-                    // chasing player
-                    println!("{} look at you!", name.name);
-                    let path_nodes = calc_path_astar(monster_pos, player_pos, &map);
-                    println!("path nodes: {:?}", path_nodes);
-                    if path_nodes.len() >= 2 {
-                        let next_pos = path_nodes.get(1).unwrap();
-                        println!("next pos: {:?}", next_pos);
+            if viewshed.visible_tiles.contains(&Point2::from([player_pos.x, player_pos.y])) {
+                // chasing player
+                let path_nodes = calc_path_astar(monster_pos, player_pos, &map);
+                // println!("path nodes: {:?}", path_nodes);
+                if path_nodes.len() >= 2 {
+                    let next_pos = path_nodes.get(1).unwrap();
+                    if next_pos == player_pos {
+                        println!("{} is attacking you!", name.name);
+                        continue;
+                    } else if map.is_block(next_pos.x, next_pos.y) {
+                        continue;
+                    } else {
+                        // println!("next pos: {:?}", next_pos);
                         monster_pos.x = next_pos.x;
                         monster_pos.y = next_pos.y;
                     }
@@ -72,7 +80,7 @@ fn calc_path_astar(src: &Position, dest: &Position, map: &Map) -> Vec<Position> 
                 .filter(|p| {
                     let origin_x = p.0 / SCALE;
                     let origin_y = p.1 / SCALE;
-                    origin_x >= 0 && origin_x < TILE_WIDTH && origin_y >= 0 && origin_y < TILE_HEIGHT && !map.is_block(xy_idx(origin_x, origin_y))
+                    origin_x >= 0 && origin_x < TILE_WIDTH && origin_y >= 0 && origin_y < TILE_HEIGHT && !map.is_block(origin_x, origin_y)
                 })
                 .map(|p| {
                     let &Pos(x, y) = &p;

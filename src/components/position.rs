@@ -21,4 +21,8 @@ impl Position {
         let [x, y] = data;
         Position::new(x, y)
     }
+
+    pub fn to_tuple(&self) -> (u64, u64) {
+        (self.x, self.y)
+    }
 }

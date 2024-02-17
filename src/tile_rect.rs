@@ -9,6 +9,15 @@ pub struct TileRect {
 }
 
 impl TileRect {
+    pub fn new(x: u64, y: u64, w: u64, h: u64) -> Self {
+        TileRect {
+            x,
+            y,
+            w,
+            h,
+        }
+    }
+
     pub fn left_top(&self) -> Point2<u64> {
         Point2::from([self.x, self.y])
     }

@@ -4,3 +4,4 @@ pub mod player;
 pub mod viewshed;
 pub mod monster;
 pub mod name;
+pub mod blocked_tile;

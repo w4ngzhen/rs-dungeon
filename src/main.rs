@@ -14,6 +14,7 @@ use ggez::conf::WindowMode;
 use ggez::event;
 use ggez::graphics::Color;
 use specs::{Builder, World, WorldExt};
+use crate::components::blocked_tile::BlockedTile;
 use crate::components::monster::Monster;
 use crate::components::name::Name;
 use crate::components::player::Player;
@@ -37,6 +38,7 @@ fn main() -> Result<(), String> {
     gs.ecs.register::<Viewshed>();
     gs.ecs.register::<Monster>();
     gs.ecs.register::<Name>();
+    gs.ecs.register::<BlockedTile>();
     // insert resource
     let map = Map::new_map();
     let first_room = &map.rooms[0];
@@ -61,6 +63,7 @@ fn main() -> Result<(), String> {
         // println!("monster created at ({}, {})", x, y);
         gs.ecs.create_entity()
             .with(Monster {})
+            .with(BlockedTile {})
             .with(Name { name: format!("M#{}", monster_id) })
             .with(Position { x, y })
             .with(Renderable {

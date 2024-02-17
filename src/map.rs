@@ -9,6 +9,7 @@ pub struct Map {
     pub tiles: Vec<TileType>,
     pub revealed_tiles: Vec<bool>,
     pub visited_tiles: Vec<bool>,
+    pub blocked_tiles: Vec<bool>,
     pub rooms: Vec<TileRect>,
     pub width: u64,
     pub height: u64,
@@ -16,9 +17,9 @@ pub struct Map {
 
 impl Map {
     pub fn new_map() -> Self {
-        const MAP_SIZE: u64 = TILE_WIDTH * TILE_HEIGHT;
+        const MAP_SIZE: usize = (TILE_WIDTH * TILE_HEIGHT) as usize;
 
-        let mut map_tiles = vec![TileType::Wall; MAP_SIZE as usize];
+        let mut map_tiles = vec![TileType::Wall; MAP_SIZE];
 
         let mut rooms: Vec<TileRect> = Vec::new();
         const MAX_ROOMS: i32 = 30;
@@ -32,12 +33,7 @@ impl Map {
             let h = rng.range(MIN_SIZE, MAX_SIZE);
             let x = rng.roll_dice(1, TILE_WIDTH - w - 1) - 1;
             let y = rng.roll_dice(1, TILE_HEIGHT - h - 1) - 1;
-            let new_room = TileRect {
-                x,
-                y,
-                w,
-                h,
-            };
+            let new_room = TileRect::new(x, y, w, h);
             let mut ok = true;
             for other_room in rooms.iter() {
                 if new_room.intersect(other_room) { ok = false }
@@ -63,8 +59,9 @@ impl Map {
 
         let map = Map {
             tiles: map_tiles,
-            revealed_tiles: vec![false; MAP_SIZE as usize],
-            visited_tiles: vec![false; MAP_SIZE as usize],
+            revealed_tiles: vec![false; MAP_SIZE],
+            visited_tiles: vec![false; MAP_SIZE],
+            blocked_tiles: vec![false; MAP_SIZE],
             rooms,
             width: TILE_WIDTH,
             height: TILE_HEIGHT,
@@ -76,8 +73,9 @@ impl Map {
         self.tiles[idx] == TileType::Wall
     }
 
-    pub fn is_block(&self, idx: usize) -> bool {
-        self.tiles[idx] == TileType::Wall
+    pub fn is_block(&self, x: u64, y: u64) -> bool {
+        let idx = xy_idx(x, y);
+        self.blocked_tiles[idx]
     }
 }
 
